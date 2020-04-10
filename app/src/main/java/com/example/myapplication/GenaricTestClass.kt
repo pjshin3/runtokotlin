@@ -40,7 +40,5 @@ class GenaricTestClass {
         val testInOuta = testInOut(item)
         val a : Number = 3;
         val testInOutb = testInOut(a)
-        testInOuta = testInOutb
-
     }
 }
