@@ -83,4 +83,34 @@ class CoroutinClass {
             }
         }
     }
+
+    // try / finally 문에서는 잡이 취소 될경운 cancelledException이 발생될경우 fianlly문이 실행이 된다.
+    // 잡이 이미 끝난 상태에서 중단함수인 delay를 사용할 경우 다시 cancelledException이 발생하여 finally문이
+    // 실행되지 않고 끝이난다. 하지만 이를 해결할 수 있는 방법이 withContext에 NonCancellable을 인자를 넘겨 처리방법이 가능하다.
+    // Cancellable의 내부는 isActive가 항상 true이기때문에 가능하다.
+    // 위의 내용이외에 또한 동작쓰래드도 변경이 가능하다
+    // Main, Io , Defult 등등 ..
+    fun cancelationTest() = runBlocking {
+        val job = launch {
+            try {
+
+                repeat(1000) {i ->
+                    println("i am sleeping $i ...")
+                    delay(500L)
+                }
+
+            }finally {
+                withContext(NonCancellable){
+                    delay(1000)
+                    println("main : i am running finally!!")
+                }
+            }
+
+        }
+        delay(1300L)
+        println("main i am tired of waiting!")
+        job.cancelAndJoin()
+        println("main : now i can quit !")
+    }
+
 }

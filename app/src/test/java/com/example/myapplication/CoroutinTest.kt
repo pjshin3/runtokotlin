@@ -8,7 +8,7 @@ class CoroutinTest {
 
     @Test
     fun test(){
-        test.oomTest()
+        test.cancelationTest()
     }
 
 }
