@@ -1,6 +1,10 @@
 package com.example.myapplication
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.channels.produce
 
 class CoroutinClass {
 
@@ -113,4 +117,35 @@ class CoroutinClass {
         println("main : now i can quit !")
     }
 
+    //채널을 통해 각 잡에서 하나의 값을 공유할 수 있다.
+    fun channelTest() = runBlocking {
+        val channel = Channel<Int>()
+
+        launch {
+            for (x in 1..5){
+                channel.send(x * x)
+            }
+        }
+        repeat(5) { println(channel.receive())}
+    }
+
+    // 확장함수와 프로듀스를 통해 채널에 대한 비지니스로직을 더 입맛에 맞게 만들수 있다.
+    // 파이프라인 패턴을 사용할때 유용함.
+    // 파이프라인이란 하나의 코루틴이 생상해낸 스트림을 다른 코루틴이 이 스트림을 받아 작업 수행후 가공된 결과를 내는것.
+    fun produceTese() = runBlocking {
+        val square = produceSquares(5)
+        val double = produceDouble(square)
+
+        double.consumeEach { println(it) }
+    }
+
+    fun CoroutineScope.produceSquares(max: Int) : ReceiveChannel<Int> = produce{
+
+        for (x in 1..max){
+            send(x * x)
+        }
+    }
+    fun CoroutineScope.produceDouble(number: ReceiveChannel<Int>) : ReceiveChannel<Int> = produce {
+        number.consumeEach { send(it * 2) }
+    }
 }
