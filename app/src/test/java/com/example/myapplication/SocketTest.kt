@@ -2,13 +2,10 @@ package com.example.myapplication
 
 import org.junit.Test
 
-class CoroutinTest {
-
-    val test = CoroutinClass()
-
+class SocketTest (){
+    val testClass = SoketClass()
     @Test
     fun test(){
-        test.pipelineTest()
+        testClass.connectNist()
     }
-
 }
