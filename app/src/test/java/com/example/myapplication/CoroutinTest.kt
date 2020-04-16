@@ -8,7 +8,7 @@ class CoroutinTest {
 
     @Test
     fun test(){
-        test.pipelineTest()
+        test.exceptionTese()
     }
 
 }

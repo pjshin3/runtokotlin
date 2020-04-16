@@ -5,6 +5,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
+import java.lang.ArithmeticException
+import kotlin.system.measureTimeMillis
 
 class CoroutinClass {
 
@@ -172,4 +174,62 @@ class CoroutinClass {
         }
     }
 
+    //순차 실행
+    fun sequentialTese() = runBlocking {
+        val time = measureTimeMillis {
+            val a = A()
+            val b = B()
+
+            println("The answer ${a + b}")
+        }
+        println("Completed in $time ms")
+
+    }
+    suspend fun A() : Int{
+        delay(1000L)
+        return 53
+    }
+    suspend fun B() : Int{
+        delay(3000L)
+        return 32
+    }
+    //동시 실행
+    fun concrurrentTest() = runBlocking<Unit> {
+        val time = measureTimeMillis {
+            val a = async {  A() }
+            val b = async { B() }
+            println("The answer ${a.await()+b.await()}")
+        }
+        println("Completed in $time ms")
+
+    }
+
+
+    fun exceptionTese() = runBlocking{
+        try {
+            val time = measureTimeMillis {
+                println("시작 ${concurrentSum()}")
+            }
+        }catch (throwable : Throwable){
+            println("실패 $throwable")
+        }
+    }
+
+    // 호출한쪽의 부모까지 호출하게 된다.
+    // 같은 스코프안에서 하나의 자식스레드가 실패하더라도 모두 취소되고 호출한쪽에 알리게됨.
+    suspend fun concurrentSum() : Int = coroutineScope {
+        val one = async {
+            try {
+                delay(Long.MAX_VALUE)
+                A()
+            }finally {
+            }
+        }
+        val two = async<Int> {
+            println("sencond chid thow an exception")
+            B()
+            throw ArithmeticException("Exception on purpose")
+        }
+        one.await() + two.await()
+    }
 }
