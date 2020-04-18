@@ -232,4 +232,32 @@ class CoroutinClass {
         }
         one.await() + two.await()
     }
+
+    //각각의 빌더에 리턴 값 및 async vs slaunch의 비교
+    fun returnTese() = runBlocking {
+        val jop = launch(CoroutineName("TEST1")) {
+            println("${Thread.currentThread().name} My builder is job , job is noting return")
+        }
+
+        val deferred =  async(CoroutineName("TEST2")) {
+            println("${Thread.currentThread().name} My builder is deferred, deferrd is T return")
+            "this is value"
+        }
+        println(deferred.await())
+        println(jop.join()) // Unit은 아무것도 아니다. 코틀린 전용 리턴값
+
+        //쓰래드 변경 테스트
+        //use() 메소드는 더 이상 쓰래드가 필요하지 않을경우 자동으로 해제해준다.
+        newSingleThreadContext("cx1").use { cx1 ->
+            newSingleThreadContext("cx2").use { cx2->
+                runBlocking(cx1) {
+                    println("${Thread.currentThread().name} 첫번쨰")
+                    withContext(cx2){
+                        println("${Thread.currentThread().name}  두버쨰")
+                    }
+                    println("${Thread.currentThread().name} 세번째")
+                }
+            }
+        }
+    }
 }
