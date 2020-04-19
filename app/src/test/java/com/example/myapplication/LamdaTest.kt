@@ -11,7 +11,6 @@ class LamdaTest{
     @Test
     fun test(){
         test.main()
-//        assertEquals(56, test.main())
     }
 
 }
