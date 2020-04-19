@@ -1,5 +1,7 @@
 package com.example.myapplication
 
+import kotlinx.coroutines.Runnable
+
 class Person(val name : String, val age : Int)
 
 class Lamda {
@@ -8,13 +10,17 @@ class Lamda {
         Person("shin",30),
         Person("kim",59),
         Person("Hong",30),
+        Person("Jang",26),
         Person("Jang",26)
     )
     fun main(){
 //        A()
 //        B()
 //        C()
-        D()
+//        D()
+//        E()
+//        F()
+        G()
     }
 
     //컬렉션 API filter 술어 함수
@@ -60,6 +66,58 @@ class Lamda {
         //조건에 맞는 원소를 찾아 객체로 반환한다.
         println(
             personList.find(condition)
+        // personList.firstOrNull(condition)
+        //find는 마찬가지로 조건에 맞는 것이 없는 경우 null을 반환하지만,
+        //위와 같이 가독성을 위해 좀더 명확하게 firstOrNull으로 사용이 가능하다.
         )
+        //원소로 분류할 수 있다.
+        println(
+            personList.groupBy { it.age }
+        )
+    }
+    // 중첩된 원소처리 API
+    fun E(){
+        val list = listOf("def","abc","abc")
+        //문자열을 문자로 나열해준다.
+        println(
+            list.flatMap { it.toList() }
+        )
+    }
+    // 연쇄 계산을 할경우 시퀀스를 이용해 하나의 결과 값을 받을 수 있다.
+    // 증긴연산, 최종 연산등 중간연산의 결과값으로 다음의 연쇄 계산을 할 수 있어
+    // 중복 루프를 통한 어떤 계산을 할 경우 필요할 것 같다.
+    fun F(){
+        //지연 연산
+        //asSequence는 최종 호출이 있을경우에만 결과를 출력한다.
+        //중간 연산들은 최종호출이 호출 될때 지연됫던 연산을 하여 결과값을 반환한다.
+        //이경우 최종 연산이 없을 경우 결과값을 반환하지 않는다.
+        println(
+            personList.asSequence()
+                .filter{it.age > 30} // 중간 연산
+                .map { it.age * it.age } // 중간 연산
+                .toList() // 최종 연산
+        )
+        println(
+            list.asSequence()
+                .map { it * it }
+                .find { it > 3 }
+        )
+        //시퀀스를 직접 만들 수 있다.
+        val stepA = generateSequence(0) {it + 1}
+        val stepB = stepA.takeWhile { it <= 100 }
+        println(
+            stepB.sum()
+        )
+    }
+    // 명시적 객체와, 무명 객체 공부중
+    fun Gtest(delay: Int, computation:Runnable){}
+    fun G(){
+        Gtest(1000,object : Runnable{
+            override fun run() {
+                println("runnable은 매번 새로 생성된다.")
+            }
+        })
+        val run = Runnable { println("매번 같은 객체를 참조한다.") }
+        Gtest(1000,run)
     }
 }
