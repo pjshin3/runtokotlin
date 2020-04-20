@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import kotlinx.coroutines.Runnable
+import java.lang.StringBuilder
 
 class Person(val name : String, val age : Int)
 
@@ -20,7 +21,8 @@ class Lamda {
 //        D()
 //        E()
 //        F()
-        G()
+//        G()
+        H()
     }
 
     //컬렉션 API filter 술어 함수
@@ -109,15 +111,61 @@ class Lamda {
             stepB.sum()
         )
     }
-    // 명시적 객체와, 무명 객체 공부중
-    fun Gtest(delay: Int, computation:Runnable){}
+    // 자바에 선언부가 있을 경우 코틀린에서는 런어블과 같은 인터페이스를 람다로 넘길 수 있음.
+    // 자동으로 런어블로 인스턴스화해줌.
+    fun Gtest(delay: Int, computation:java.lang.Runnable){}
     fun G(){
+        // 명시적 객체 생성
+        // 매번 새로 만들어서 호출된다.
         Gtest(1000,object : Runnable{
             override fun run() {
                 println("runnable은 매번 새로 생성된다.")
             }
         })
+        // 위와 같은 내용을 풀어 쓴내용
         val run = Runnable { println("매번 같은 객체를 참조한다.") }
         Gtest(1000,run)
+
+
+        // 이경우 단한번만 인스턴스를 만들어 호출될때 반복적으로 사용된다.
+        // 단 람다를 인자로 넘기는 구현부에서 주변 변수를 람다가 포획할 경우 매번 새롭게 인스턴스화를 한다.
+        //Gtest(1000){ println("테스트")}
+    }
+    // 람다 수신 객체 함수(지정 함수)
+    // with, apply
+    fun H(){
+        //with
+        //인스턴스로 넘긴 객체의 메소드를 자신을 호출할 필요없이 메소드를 이용이 가능하다.
+        //따로 반환하지 않는다.
+        val resultWith = with(StringBuilder()){
+            for (letter in 'A' .. 'Z'){
+                append(letter)
+            }
+            append("\nNow I Know the alphabat !!")
+            toString()
+        }
+        println(resultWith)
+
+        //with와 거의 비슷하지만 apply는 해당 객체를 apply블록안에서 초기화한후 해당 객체를 반환한다.
+        println(
+            StringBuilder().apply {
+                for (letter in 'A' .. 'Z'){
+                    append(letter)
+                }
+                append("\nNow I Know the alpahbat !!")
+            }.toString()
+        )
+
+        //buildString은 StringBuilder 객체를 만들고 또 다시 문자열로 만드는 메소드를 따로 실행하지 않아도
+        //두가지 일을 모두 해준다.
+        //StringBuilder를 이용하여 문자열을 만들때 가장 우아한 해법이다.
+        println(
+            buildString {
+                for (letter in 'A' .. 'Z'){
+                    append(letter)
+                }
+                append("\nNow I Know the alpahbat !!")
+            }
+        )
     }
 }
