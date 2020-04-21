@@ -5,7 +5,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
-import java.lang.ArithmeticException
+import kotlin.ArithmeticException
+import kotlin.AssertionError
 import kotlin.system.measureTimeMillis
 
 class CoroutinClass {
@@ -14,7 +15,11 @@ class CoroutinClass {
 
     fun main(){
         //coroutin()
-        deffient()
+//        deffient()
+        //C()
+//        D()
+//        E()
+        F()
     }
 
     // runblocking 주어진 블록에 대해 블록이 완료될때 까지 스래드를 멈추있는 코루틴 빌더
@@ -258,6 +263,111 @@ class CoroutinClass {
                     println("${Thread.currentThread().name} 세번째")
                 }
             }
+        }
+    }
+    // 코루틴 예외 처리 핸들러
+    // 사용자에 의해 처리되지 않은 예외만 처리된다
+    // 따라서 이런식으로 익셉션 핸들러를 따로 등록해도 lanuch에 해당하는 예외만 핸들러는 처리하게 된다.
+    // lanuch,actor = 예외를 자동으로 전파
+    // async, produce = 사용자에게 노출하여 예외를 일임
+    fun C()= runBlocking<Unit> {
+        val exceptionHandler = CoroutineExceptionHandler{_, exception ->
+            println("오류 발생 $exception")
+        }
+
+        val job = GlobalScope.launch(exceptionHandler) {
+            throw AssertionError()
+        }
+
+        val defferd = GlobalScope.async(exceptionHandler) {
+            throw ArithmeticException()
+        }
+
+
+        joinAll(job,defferd)
+
+    }
+    //코루틴 취소는 CoroutinsException과 밀접한 연관이있는데,
+    //중간에 취소 함수는 CoroutinsException을 발생시켜 취소 하게 된다.
+    //하지만 이 취소함수를 통해 CoroutinsException이 발생되면 부모에게 영향을 끼치지 않는다.
+    fun D() = runBlocking<Unit>{
+        val job = launch {
+
+            val child = launch {
+                try {
+                    delay(Long.MAX_VALUE)
+                }finally {
+                    println("자식이 취소됨.")
+                }
+            }
+            yield()
+            println("자식을 취소합니다.")
+            child.cancel()
+            child.join()
+            yield()
+            println("부모는 취소되지 않았다.")
+        }
+
+        job.join()
+    }
+
+    //예외가 발생한다 해도 예외 전달을 핸들러에게 전달 되는 부분은
+    //모든 자식들이 끝나고 난뒤에 예외 전달하여 예외가 발생하도록 된다.
+    fun E() = runBlocking{
+        val handler = CoroutineExceptionHandler{_, exception ->
+            println("예외가 발생되었습니다. = $exception")
+        }
+        val job = GlobalScope.launch(handler) {
+            launch {
+                try {
+                    delay(Long.MAX_VALUE)
+                }finally {
+                    //withContext(NonCancellable){
+                        println("모든 자식이 취소가 되지만, 익셉션은 모든 자식이 끝날때까지 발생하지 않습니다.")
+                        delay(100)
+                        println("첫번쨰 자식이 끝났음. noncancellable block")
+                    //}
+                }
+            }
+
+            launch {
+                delay(10)
+                println("두번째 자식이 익셉션 발생")
+                throw ArithmeticException()
+            }
+
+        }
+        job.join()
+    }
+
+    //하나의 자식이 예외를 발생했다고 모든 자식이 멈추면 안되기때문에
+    // 감독이라는 개념을 사용하여 하나의 자식이 취소 되더라도
+    // 나머지 자식이 작업을 이뤄질수 있게함.
+    //예외 발생 방향이 일반 job과 다르다
+    // job = 자식 -> 부모 예외로 인한 취소 전달.
+    // supervisorjob = 부모 -> 자식 예외로 인한 취소 전달.
+    fun F() = runBlocking{
+        val supervisor = SupervisorJob()
+        with(CoroutineScope(coroutineContext+supervisor)){
+            val first = launch(CoroutineExceptionHandler { _, _ ->  }) {
+                println("첫번째 자식 실패")
+                throw AssertionError("첫번째 자식 취소 됨.")
+            }
+
+            val second = launch {
+                first.join()
+                println("첫번째 자식은 취소 됫지만 : ${first.isActive}, 그러나 두번째 자식은 여전히 살아있음.")
+
+                try {
+                    delay(Long.MAX_VALUE)
+                }finally {
+                    println("두번째 자식이 취소됨 관리자에의 취솓 되었음")
+                }
+            }
+            first.join()
+            println("관리자 취소")
+            supervisor.cancel()
+            second.join()
         }
     }
 }
