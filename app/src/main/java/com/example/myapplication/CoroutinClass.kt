@@ -5,6 +5,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlin.ArithmeticException
 import kotlin.AssertionError
 import kotlin.system.measureTimeMillis
@@ -13,13 +16,15 @@ class CoroutinClass {
 
 
 
+    @InternalCoroutinesApi
     fun main(){
         //coroutin()
 //        deffient()
         //C()
 //        D()
 //        E()
-        F()
+//        F()
+        G()
     }
 
     // runblocking 주어진 블록에 대해 블록이 완료될때 까지 스래드를 멈추있는 코루틴 빌더
@@ -369,5 +374,31 @@ class CoroutinClass {
             supervisor.cancel()
             second.join()
         }
+    }
+
+
+    // 코루틴 플로우를 통한 비동기 처리 방식
+    // 플로우를 상속받은 함수는 emit 이라는 함수로 결과값을 출력할 수 있고,
+    // 플로우를 호출하는 곳에서 collet 람다로 이값을 얻을 수 있습니다.
+    // 이렇게되면 메인스레드를 정지 하지 않고도 비동기 처리방식을 사용할 수 있음.
+    fun foo() : Flow<Int> = flow {
+        for(i in 1 .. 3){
+           delay(100)
+            emit(i)
+        }
+    }
+    @InternalCoroutinesApi
+    fun G() = runBlocking{
+        launch {
+            for (k in 1..3){
+                println("i am not bloced $k")
+                delay(100)
+            }
+        }
+        // 플로우 취소 방법
+//        withTimeoutOrNull(250){
+//            foo().collect{ item -> println(item)}
+//        }
+        foo().collect{ item -> println(item)}
     }
 }
