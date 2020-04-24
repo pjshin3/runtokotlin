@@ -22,7 +22,8 @@ class Lamda {
 //        E()
 //        F()
 //        G()
-        H()
+//        H()
+        I()
     }
 
     //컬렉션 API filter 술어 함수
@@ -167,5 +168,14 @@ class Lamda {
                 append("\nNow I Know the alpahbat !!")
             }
         )
+    }
+    // 클로저라는 개념은 익명함수 람다가 외부의 변수를 참조하는 것을 말한다.
+    fun I(){
+        var list = mutableListOf<Int>(1,2,3,4,5,6,7,8,9,0)
+        var item = 0
+        list.filter { it > 0 }.forEach {
+            item += it
+        }
+        println(item)
     }
 }
