@@ -1,12 +1,15 @@
 package com.example.myapplication
 
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.rxkotlin.toObservable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.reactivestreams.Publisher
 import java.lang.Thread.sleep
 import java.util.concurrent.Callable
+import java.util.concurrent.TimeUnit
 
 class Rx {
     private val listInIntArray = arrayOf(1,2,3,4,5,6,7,8,9)
@@ -16,7 +19,8 @@ class Rx {
         //B()
 //        C()
 //        D()
-        E()
+//        E()
+        F()
     }
     // JUST
     // 타입이 모두 같고 최대 처리가 가능한 데이터는 10개
@@ -65,5 +69,22 @@ class Rx {
     fun E(){
         val item = Observable.fromCallable(Etest)
         val observer = item.subscribe(::println)
+    }
+    //PUBLISHER
+    //다른 메소드와 달리 데이터를 생성에서 발행까지 모두 할 수 있다.
+    val Ftest = Publisher<String>{
+        it?.onNext("hello world")
+        it.onComplete()
+    }
+    fun F(){
+        val item = Observable.fromPublisher(Ftest)
+        val observer = item.subscribe(::println)
+    }
+    //Single vs Observable 객체 차이
+    //Single = 이름과 같이 데이터를 한번 발행하면 종료된다. 서버 Api에 적합
+    //Observeble = 데이터를 여러게를 발행할 수 있다.
+    fun G(){
+//        val observable = Observable.just(1,2,3,4,5,6,7,8)
+//        val single = Single.just(1,2,3,4,5,6,7,8,8,9) 오류문구가 난다.
     }
 }
