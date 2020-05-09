@@ -1,18 +1,11 @@
 package com.example.myapplication
 
 import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.toObservable
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.reactivestreams.Publisher
 import java.lang.Thread.sleep
-import java.util.concurrent.Callable
-import java.util.concurrent.TimeUnit
 
 class Rx {
-    private val listInIntArray = arrayOf(1,2,3,4,5,6,7,8,9)
+    private val listIntArray = arrayOf(1,2,3,4,5,6,7,8,9)
     private val listInStringArrayList = arrayListOf("Shin,Hong,Kim,Gang")
     fun main(){
         //A()
@@ -20,8 +13,28 @@ class Rx {
 //        C()
 //        D()
 //        E()
-        F()
+//        F()
+        CC()
     }
+
+    private val item = 8
+    fun AA() =
+        Observable.range(1,9)
+            .map {range ->
+                "$item * $range = ${item*range}"
+            }
+            .subscribe(::println)
+
+    fun BB()=
+        Observable.range(1,200)
+            .filter{ it % 10 == 0 }
+            .subscribe(::println)
+
+    fun CC() =
+        Observable.range(1,10)
+            .reduce{ item1,item2 -> item1+item2 }
+            .subscribe(::println)
+
     // JUST
     // 타입이 모두 같고 최대 처리가 가능한 데이터는 10개
     // 인자로 넣은 값을 차례로 발행한다.
@@ -48,7 +61,7 @@ class Rx {
     // 배열 원소를 하나씩 출력해준다.
     // 원소를 출력하기 위해서 *을 붙쳐주는대 이는 명시적 래퍼타입 Intiger가 아닌 원소타입 int형태의 값을 읽기위해 붙쳐준다.
     fun C(){
-        val item = Observable.fromArray(*listInIntArray)
+        val item = Observable.fromArray(*listIntArray)
         val observer = item.subscribe(::println)
     }
     //FROMITERABLE
