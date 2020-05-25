@@ -19,7 +19,7 @@ class CustomClass : androidx.appcompat.widget.AppCompatEditText{
     ) {
         super.onTextChanged(text, start, lengthBefore, lengthAfter)
 
-        if (text!!.equals("<@sex>")){
+        if (text!!.equals("<@test>")){
 
         }
     }
