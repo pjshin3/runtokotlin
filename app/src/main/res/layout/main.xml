@@ -6,12 +6,14 @@
     <TextView
         android:id="@+id/test_tv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:text="asdfasfdasdsaasdfaddfafd"
         android:gravity="center"
         >
     </TextView>
-    <Button
-        android:id="@+id/button"
+    <com.example.myapplication.CustomClass
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content">
+
+    </com.example.myapplication.CustomClass>
 </LinearLayout>
